@@ -12,7 +12,7 @@ A simple **Task & Project Management** application built with **Spring Boot**, i
 
 ## 📌 Technologies Used
 
-- ✅ **Java 17**
+- ✅ **Java 21**
 - ✅ **Spring Boot 3.4.2**
 - ✅ **Maven**
 - ✅ **Thymeleaf**
