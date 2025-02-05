@@ -10,7 +10,7 @@ A simple **Task & Project Management** application built with **Spring Boot**, i
 - 🎨 **Modern UI**: Responsive design with **Bootstrap/Tailwind CSS**.
 - 🔐 **User Authentication**: Manage user accounts securely.
 
-## Technologies Used
+## 📌 Technologies Used
 
 - ✅ **Java 17**
 - ✅ **Spring Boot 3.4.2**
