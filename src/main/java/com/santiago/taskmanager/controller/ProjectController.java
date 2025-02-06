@@ -20,33 +20,45 @@ public class ProjectController {
 
     // GET all projects
     @GetMapping
-    public List<Project> getProjects(){
+    public List<Project> getProjects() {
         return projectService.getAllProjects();
     }
 
     // GET project by ID
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        return projectService.getProjectById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Project> projectById = projectService.getProjectById(id);
+
+        if (projectById.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(projectById.get());
     }
 
     // POST create project
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project){
+    public ResponseEntity<Project> createProject(@RequestBody Project project) {
+        if (project == null || project.getName() == null || project.getStartDate() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(projectService.createProject(project));
     }
 
     // PUT update project
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project project){
+    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project project) {
+        if (project == null || project.getName() == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(projectService.updateProject(id, project));
     }
 
     // DELETE project
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id){
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        if (projectService.getProjectById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
