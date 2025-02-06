@@ -1,3 +1,6 @@
+> 🚧 **UNDER CONSTRUCTION** 🚧  
+> This project is actively being developed! Stay tuned for updates.
+
 # 🚀 Task Manager
 
 A simple **Task & Project Management** application built with **Spring Boot**, inspired by tools like Trello and Asana.
