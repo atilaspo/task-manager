@@ -4,7 +4,9 @@ import com.santiago.taskmanager.dto.ProjectDTO;
 import com.santiago.taskmanager.dto.TaskDTO;
 import com.santiago.taskmanager.model.Project;
 import com.santiago.taskmanager.model.Task;
+import com.santiago.taskmanager.model.User;
 import com.santiago.taskmanager.repository.ProjectRepository;
+import com.santiago.taskmanager.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -16,9 +18,11 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -30,24 +34,14 @@ public class ProjectServiceImpl implements ProjectService {
         project.setEndDate(projectDTO.getEndDate());
         project.setStatus(projectDTO.getStatus());
 
-        List<Task> tasks = (projectDTO.getTasks() != null) ? projectDTO.getTasks().stream()
-                .map(taskDTO -> {
-                    Task task = new Task();
-                    task.setTitle(taskDTO.getTitle());
-                    task.setDescription(taskDTO.getDescription());
-                    task.setDueDate(taskDTO.getDueDate());
-                    task.setStatus(taskDTO.getStatus());
-                    task.setPriority(taskDTO.getPriority());
-                    task.setProject(project);  // Asocia la tarea al proyecto
-                    return task;
-                }).collect(Collectors.toList()) : Collections.emptyList(); // Si es null, asignar una lista vacía
-
-        project.setTasks(tasks);
+        if (projectDTO.getCollaboratorIds() != null) {
+            List<User> collaborators = userRepository.findAllById(projectDTO.getCollaboratorIds());
+            project.setCollaborators(collaborators);
+        }
 
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);
     }
-
 
     @Override
     public List<ProjectDTO> getAllProjects() {
@@ -68,6 +62,11 @@ public class ProjectServiceImpl implements ProjectService {
             project.setEndDate(projectDTO.getEndDate());
             project.setStatus(projectDTO.getStatus());
 
+            if (projectDTO.getCollaboratorIds() != null) {
+                List<User> collaborators = userRepository.findAllById(projectDTO.getCollaboratorIds());
+                project.setCollaborators(collaborators);
+            }
+
             Project updatedProject = projectRepository.save(project);
             return convertToDTO(updatedProject);
         }).orElseThrow(() -> new RuntimeException("Project not found"));
@@ -86,9 +85,12 @@ public class ProjectServiceImpl implements ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .status(project.getStatus())
-                .tasks(project.getTasks() != null ? project.getTasks().stream()
-                        .map(this::convertTaskToDTO)
-                        .collect(Collectors.toList()) : Collections.emptyList())
+                .tasks(project.getTasks() != null ?
+                        project.getTasks().stream().map(this::convertTaskToDTO).collect(Collectors.toList()) :
+                        Collections.emptyList())
+                .collaboratorIds(project.getCollaborators() != null ?
+                        project.getCollaborators().stream().map(User::getId).collect(Collectors.toList()) :
+                        Collections.emptyList())
                 .build();
     }
 
@@ -100,7 +102,11 @@ public class ProjectServiceImpl implements ProjectService {
                 .dueDate(task.getDueDate())
                 .status(task.getStatus())
                 .priority(task.getPriority())
-                .projectId(task.getProject() != null ? task.getProject().getId() : null)
+                .projectId(task.getProject().getId())
+                .assignedUsersId(task.getAssignedUsers() != null ?
+                        task.getAssignedUsers().stream().map(User::getId).collect(Collectors.toList()) :
+                        Collections.emptyList()
+                )
                 .build();
     }
 }

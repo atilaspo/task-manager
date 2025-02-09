@@ -17,20 +17,24 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String name;
-
-    String description;
-
-    LocalDate startDate;
-
-    LocalDate endDate;
+    private String name;
+    private String description;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    ProjectStatus status;
+    private ProjectStatus status;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_projects",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> collaborators;
 }

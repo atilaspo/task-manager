@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,24 +16,31 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String title;
-
-    String description;
-
-    LocalDate dueDate;
+    private String title;
+    private String description;
+    private LocalDate dueDate;
 
     @Enumerated(EnumType.STRING)
-    TaskStatus status;
+    private TaskStatus status;
 
     @Enumerated(EnumType.STRING)
-    TaskPriority priority;
+    private TaskPriority priority;
 
     @ManyToOne
-    @JoinColumn(name="project_id", nullable = false)
-    Project project;
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_tasks",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> assignedUsers = new ArrayList<>();
 
 }
