@@ -19,4 +19,5 @@ public class ProjectDTO {
     private LocalDate endDate;
     private ProjectStatus status;
     private List<TaskDTO> tasks;
+    private List<Long> collaboratorIds;
 }
