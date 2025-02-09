@@ -1,48 +1,85 @@
 package com.santiago.taskmanager.service;
 
+import com.santiago.taskmanager.dto.TaskDTO;
+import com.santiago.taskmanager.model.Project;
 import com.santiago.taskmanager.model.Task;
+import com.santiago.taskmanager.repository.ProjectRepository;
 import com.santiago.taskmanager.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
-    }
-    @Override
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
-    }
-    @Override
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        this.projectRepository = projectRepository;
     }
 
     @Override
-    public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
+    public TaskDTO createTask(TaskDTO taskDTO) {
+        if (taskDTO.getProjectId() == null) {
+            throw new IllegalArgumentException("Project ID is required");
+        }
+
+        Project project = projectRepository.findById(taskDTO.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        Task task = new Task();
+        task.setTitle(taskDTO.getTitle());
+        task.setDescription(taskDTO.getDescription());
+        task.setDueDate(taskDTO.getDueDate());
+        task.setStatus(taskDTO.getStatus());
+        task.setPriority(taskDTO.getPriority());
+        task.setProject(project);
+
+        Task savedTask = taskRepository.save(task);
+        return convertToDTO(savedTask);
     }
 
     @Override
-    public Task updateTask(Long id, Task updatedTask) {
+    public List<TaskDTO> getAllTasks() {
+        return taskRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<TaskDTO> getTaskById(Long id) {
+        return taskRepository.findById(id).map(this::convertToDTO);
+    }
+
+    @Override
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         return taskRepository.findById(id).map(task -> {
-            task.setTitle(updatedTask.getTitle());
-            task.setDescription(updatedTask.getDescription());
-            task.setDueDate(updatedTask.getDueDate());
-            task.setStatus(updatedTask.getStatus());
-            task.setPriority(updatedTask.getPriority());
-            return taskRepository.save(task);
+            task.setTitle(taskDTO.getTitle());
+            task.setDescription(taskDTO.getDescription());
+            task.setDueDate(taskDTO.getDueDate());
+            task.setStatus(taskDTO.getStatus());
+            task.setPriority(taskDTO.getPriority());
+            Task updatedTask = taskRepository.save(task);
+            return convertToDTO(updatedTask);
         }).orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
     @Override
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
+    }
+
+    private TaskDTO convertToDTO(Task task) {
+        return new TaskDTO(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDueDate(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getProject().getId()
+        );
     }
 }
