@@ -1,6 +1,6 @@
 package com.santiago.taskmanager.controller;
 
-import com.santiago.taskmanager.model.Task;
+import com.santiago.taskmanager.dto.TaskDTO;
 import com.santiago.taskmanager.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +20,14 @@ public class TaskController {
 
     // GET all tasks
     @GetMapping
-    public List<Task> getTasks() {
+    public List<TaskDTO> getTasks() {
         return taskService.getAllTasks();
     }
 
     // GET task by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        Optional<Task> task = taskService.getTaskById(id);
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+        Optional<TaskDTO> task = taskService.getTaskById(id);
 
         if (task.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -35,23 +35,22 @@ public class TaskController {
         return ResponseEntity.ok(task.get());
     }
 
-
     // POST create task
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
-        if (task == null || task.getTitle() == null || task.getDueDate() == null || task.getProject() == null) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskDTO taskDTO) {
+        if (taskDTO == null || taskDTO.getTitle() == null || taskDTO.getDueDate() == null || taskDTO.getProjectId() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(taskService.createTask(task));
+        return ResponseEntity.ok(taskService.createTask(taskDTO));
     }
 
     // PUT update task
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        if (task == null || task.getTitle() == null || task.getDueDate() == null) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
+        if (taskDTO == null || taskDTO.getTitle() == null || taskDTO.getDueDate() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(taskService.updateTask(id, task));
+        return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
     }
 
     // DELETE task

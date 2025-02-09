@@ -1,14 +1,14 @@
 package com.santiago.taskmanager.service;
 
-import com.santiago.taskmanager.model.Task;
+import com.santiago.taskmanager.dto.TaskDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TaskService {
-    Task createTask(Task task);
-    List<Task> getAllTasks();
-    Optional<Task> getTaskById(Long id);
-    Task updateTask(Long id, Task task);
+    TaskDTO createTask(TaskDTO taskDTO);
+    List<TaskDTO> getAllTasks();
+    Optional<TaskDTO> getTaskById(Long id);
+    TaskDTO updateTask(Long id, TaskDTO taskDTO);
     void deleteTask(Long id);
 }
