@@ -35,7 +35,7 @@ public class Task {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "user_tasks",
             joinColumns = @JoinColumn(name = "task_id"),
