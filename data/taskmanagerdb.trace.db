@@ -1,0 +1,6 @@
+2025-02-09 18:58:36.771478+11:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+select u1_0.id,u1_0.email,u1_0.password,u1_0.username from users u1_0 [42104-232]
+2025-02-09 21:00:11.962949+11:00 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "select * [*]USER_PROJECTS"; SQL statement:
+select * USER_PROJECTS [42000-232]
