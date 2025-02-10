@@ -37,21 +37,33 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(taskDTO.getStatus());
         task.setPriority(taskDTO.getPriority());
 
+        // ✅ 1. Buscar el proyecto y asignarlo
         if (taskDTO.getProjectId() != null) {
             Project project = projectRepository.findById(taskDTO.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
             task.setProject(project);
         }
 
+        // ✅ 2. Buscar y asignar los usuarios
         if (taskDTO.getAssignedUsersId() != null && !taskDTO.getAssignedUsersId().isEmpty()) {
             List<User> assignedUsers = userRepository.findAllById(taskDTO.getAssignedUsersId());
-            task.setAssignedUsers(assignedUsers);
+
+            // ⚠️ Verificar que realmente se encontraron usuarios antes de asignarlos
+            if (!assignedUsers.isEmpty()) {
+                task.setAssignedUsers(assignedUsers);
+
+                // ✅ 3. Sincronizar la relación inversa en User (para asegurar que se guarde correctamente)
+                for (User user : assignedUsers) {
+                    user.getAssignedTasks().add(task);
+                }
+            }
         }
 
+        // ✅ 4. Guardar la tarea en la base de datos
         Task savedTask = taskRepository.save(task);
+
         return convertToDTO(savedTask);
     }
-
 
     @Override
     public List<TaskDTO> getAllTasks() {
