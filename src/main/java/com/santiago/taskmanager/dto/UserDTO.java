@@ -2,7 +2,9 @@ package com.santiago.taskmanager.dto;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,4 +18,5 @@ public class UserDTO {
     private String password;
     private List<Long> projectIds;
     private List<Long> taskIds;
+    private List<String> roles;
 }

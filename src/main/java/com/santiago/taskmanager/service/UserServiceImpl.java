@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -60,6 +61,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<UserDTO> getUserByUsername(String username) {
+        return userRepository.findByUsername(username).map(this::convertToDTO);
+    }
+
+    @Override
     public UserDTO updateUser(Long id, UserDTO userDTO) {
         return userRepository.findById(id).map(user -> {
             user.setUsername(userDTO.getUsername());
@@ -84,7 +90,8 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .password(null) // Nunca devolver la contraseña
+                .password(null) // NOT RETURNING THE PASSWORD
+                .roles(user.getRoles())
                 .projectIds(user.getProjects() != null ?
                         user.getProjects().stream().map(Project::getId).collect(Collectors.toList()) : Collections.emptyList()
                 )
