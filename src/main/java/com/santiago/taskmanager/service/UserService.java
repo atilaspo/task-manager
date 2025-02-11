@@ -11,4 +11,6 @@ public interface UserService {
     Optional<UserDTO> getUserById(Long id);
     UserDTO updateUser(Long id, UserDTO userDTO);
     void deleteUser(Long id);
+
+    Optional<UserDTO> getUserByUsername(String username);
 }

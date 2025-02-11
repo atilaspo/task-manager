@@ -1,21 +1,44 @@
 package com.santiago.taskmanager.controller;
 
 import com.santiago.taskmanager.dto.UserDTO;
+import com.santiago.taskmanager.model.Project;
+import com.santiago.taskmanager.model.Task;
+import com.santiago.taskmanager.model.User;
+import com.santiago.taskmanager.repository.UserRepository;
+import com.santiago.taskmanager.security.JwtUtil;
+import com.santiago.taskmanager.service.UserDetailsServiceImpl;
 import com.santiago.taskmanager.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(@RequestHeader("Authorization") String token) {
+        String username = jwtUtil.extractUsername(token.replace("Bearer ", ""));
+        Optional<UserDTO> userByUsername = userService.getUserByUsername(username);
+        // UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        return userService.getUserByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
